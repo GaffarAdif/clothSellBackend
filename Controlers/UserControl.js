@@ -4,7 +4,7 @@ const User = require('../Models/Users/UserScema')
 
 
 
-
+// create user 
 const CreateUsers= async (req,res)=>{
 
   try {
@@ -27,5 +27,41 @@ const CreateUsers= async (req,res)=>{
       });
   }
 };
+// uploead profiel 
 
-module.exports = CreateUsers
+const uploadUserProfile = async (req,res)=>{
+  // Access file and other form data
+  const  myEmail  = req.body;
+  const myfile = req.file
+
+ const myUser = await  User.updateOne({Email : 'gaffar@gmail.com'},{ProfileIamge : myfile.filename})
+
+console.log(myUser)
+    res.status(200).json(
+      {
+        Messege : 'Profile Upload Succsesfully',
+        porfileUrl : myfile.filename
+      }
+    )
+
+}
+
+// send profileUrl 
+
+const profileUrlSender = async (req,res)=>{
+const myuser = req.body.userEmail
+
+const userProfileUrl = await User.findOne({Email : myuser}, { ProfileIamge: 1, _id: 0 })
+
+res.status(200).json({
+  profileUrl : userProfileUrl
+})
+  
+
+
+}
+
+
+
+
+module.exports =  {uploadUserProfile, CreateUsers,profileUrlSender}
