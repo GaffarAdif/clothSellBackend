@@ -1,5 +1,5 @@
 const User = require('../Models/Users/UserScema')
-
+const uploadFileOnCloudinary = require('../HelperFunction/Clourdinary')
 
 
 
@@ -31,37 +31,55 @@ const CreateUsers= async (req,res)=>{
 
 const uploadUserProfile = async (req,res)=>{
   // Access file and other form data
-  const  myEmail  = req.body;
+  const Number = req.params.id
   const myfile = req.file
 
- const myUser = await  User.updateOne({Email : 'gaffar@gmail.com'},{ProfileIamge : myfile.filename})
-
-console.log(myUser)
+       const cloudnaryUrl = await  uploadFileOnCloudinary(`upload/${myfile.filename}`).then(resp=>{
+        return(resp)
+       }).catch(errer=>{
+        console.log(errer)
+       })
+  
+  const myUser = await  User.updateOne({phoneNumber : Number},{ProfileIamge : cloudnaryUrl})
+  
     res.status(200).json(
       {
         Messege : 'Profile Upload Succsesfully',
-        porfileUrl : myfile.filename
+        porfileUrl : cloudnaryUrl
       }
     )
 
 }
 
-// send profileUrl 
 
-const profileUrlSender = async (req,res)=>{
-const myuser = req.body.userEmail
 
-const userProfileUrl = await User.findOne({Email : myuser}, { ProfileIamge: 1, _id: 0 })
+// Send Data for loging 
 
-res.status(200).json({
-  profileUrl : userProfileUrl
-})
+const logingDataSend = async (req,res)=>{
+
+  const UserPhoneNumber = req.params.number
+  const UserPassword = req.params.password
+
+    const userInfoBasisNumberAndPassword = await User.findOne({phoneNumber : UserPhoneNumber,Password : UserPassword},{_id : 0,createdAt : 0,updatedAt : 0,Password : 0})
   
+  if(userInfoBasisNumberAndPassword){
+
+    res.status(200).json({
+      message : 'Number Or Passord Match Succesfully',
+      UserInfo : userInfoBasisNumberAndPassword
+   })
+
+  }else{
+
+    res.status(404).json({
+      message : 'password not match',
+   })
+
+  }
+
 
 
 }
 
 
-
-
-module.exports =  {uploadUserProfile, CreateUsers,profileUrlSender}
+module.exports =  {uploadUserProfile, CreateUsers,logingDataSend }
