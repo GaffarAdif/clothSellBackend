@@ -1,15 +1,18 @@
 const express = require('express')
 const app = express()
 const mongoose = require('mongoose');
-const {CreateUsers,uploadUserProfile,logingDataSend} = require('./Controlers/UserControl');
-const {CreateAmin,SendAdminData} = require('./Controlers/AdminControlers')
 require('dotenv').config();
 const bodyParser = require('body-parser')
 const cors = require('cors');
 const path = require('path');
-const upload = require('./Multer/multer')
 const fs = require('fs')
+// local file inport 
+const upload = require('./Multer/multer')
+const {CreateUsers,uploadUserProfile,logingDataSend} = require('./Controlers/UserControl');
+const {CreateAmin,SendAdminData} = require('./Controlers/AdminControlers')
 const TempFileDelete = require('./HelperFunction/DeleteTempFile')
+const {CreateProduct} = require('./Controlers/ProductControlers')
+// local file inport 
 
 
 
@@ -63,6 +66,15 @@ app.get('/admin/create/:name/:key',(req, res) => {
 app.get('/admin/loging/:key',(req, res) => {
   SendAdminData(req,res)
 })
+app.post('/admin/product/add',upload.single('productImage'),(req, res) => {
+  CreateProduct(req,res)
+  setTimeout(() => {
+    TempFileDelete(`upload/${req.file.filename}`)
+  }, 5000);
+})
+
+
+
 
 
 app.listen(process.env.PORT, () => {
